@@ -63,7 +63,7 @@ export default function Component() {
   console.log(user);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !user?.emailVerified) {
       console.log(user);
       console.log("yoyoyo");
       router.push("/login"); // Redirect to the login page if not authenticated
