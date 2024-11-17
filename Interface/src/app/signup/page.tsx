@@ -21,13 +21,7 @@ export default function Signup() {
   const { googleSignIn, user, loading: authLoading } = UserAuth();
   const [popupVisible, setPopupVisible] = useState(false);
   const [alertmsg, setAlertmsg] = useState("");
-  const [passwordError, setPasswordError] = useState(""); // Password error state
-
-  // useEffect(() => {
-  //   if (!authLoading && user) {
-  //     router.push("/login"); // Redirect to the login page if not authenticated
-  //   }
-  // }, [user, authLoading, router]);
+  const [passwordError, setPasswordError] = useState("");
 
   // Password validation logic
   const validatePassword = (password: string) => {
@@ -50,7 +44,7 @@ export default function Signup() {
   const handleSignUp = async () => {
     const passwordValidationMessage = validatePassword(password);
     if (passwordValidationMessage) {
-      setPasswordError(passwordValidationMessage); // Set the password error
+      setPasswordError(passwordValidationMessage);
       return;
     }
 
@@ -77,7 +71,6 @@ export default function Signup() {
       console.log(email, password);
 
       if (userCredential) {
-        // Firebase user ID
         const userId = userCredential.user.uid;
 
         // Create a new user in MongoDB
@@ -90,7 +83,6 @@ export default function Signup() {
           setAlertmsg("Email verification sent! Redirecting to login...");
           setPopupVisible(true);
 
-          // Show popup and redirect to login after delay
           setTimeout(() => {
             setPopupVisible(false);
             router.push("/login");
@@ -100,8 +92,24 @@ export default function Signup() {
           setPassword("");
         }
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error: any) {
+      console.error(error);
+
+      // Handle EMAIL_EXISTS error
+      if (
+        error?.response?.data?.error?.message === "EMAIL_EXISTS" ||
+        error.message.includes("EMAIL_EXISTS")
+      ) {
+        setAlertmsg("This email is already registered. Please log in.");
+        setPopupVisible(true);
+        setTimeout(() => setPopupVisible(false), 5000);
+        return;
+      }
+
+      // General error handling
+      setAlertmsg("An error occurred. Please try again.");
+      setPopupVisible(true);
+      setTimeout(() => setPopupVisible(false), 5000);
     }
   };
 
@@ -122,11 +130,10 @@ export default function Signup() {
           return;
         }
 
-        const userId = user.uid; // Firebase UID
-        const email = user.email || ""; // Email (if available)
-        const name = user.displayName || ""; // Display name (if available)
+        const userId = user.uid;
+        const email = user.email || "";
+        const name = user.displayName || "";
 
-        // Call your MongoDB function to add the user
         await addUser(userId, name, email, []);
         console.log(
           "User successfully signed in with Google and added to MongoDB"
@@ -172,7 +179,7 @@ export default function Signup() {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
-            setPasswordError(""); // Reset error when typing
+            setPasswordError("");
           }}
           className="w-full p-3 mb-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-400 transition text-white placeholder-gray-400"
         />
