@@ -22,7 +22,7 @@ export default function Login() {
   const { user, loading: authLoading, googleSignIn }: any = UserAuth(); // Use 'loading' from auth context
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading && user.emailVerified) {
       router.push("/dashboard/projects"); // Redirect to the login page if not authenticated
     }
   }, [user, authLoading, router]);
