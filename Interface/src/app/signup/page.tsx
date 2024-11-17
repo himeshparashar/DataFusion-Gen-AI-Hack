@@ -67,6 +67,10 @@ export default function Signup() {
         email,
         password
       );
+      
+      console.log("yoyo")
+      console.log(userCredential)
+      console.log("yoyo")
 
       console.log(email, password);
 
