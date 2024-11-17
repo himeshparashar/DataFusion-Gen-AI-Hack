@@ -93,7 +93,8 @@ export default function Signup() {
         }
       }
     } catch (error: any) {
-      console.error(error);
+      console.log(error);
+      console.log(error.code);
 
       // Handle EMAIL_EXISTS error
       if (
