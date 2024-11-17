@@ -41,85 +41,60 @@ export default function Signup() {
     return "";
   };
 
-  const handleSignUp = async () => {
-    const passwordValidationMessage = validatePassword(password);
-    if (passwordValidationMessage) {
-      setPasswordError(passwordValidationMessage);
-      return;
-    }
+const handleSignUp = async () => {
+  const passwordValidationMessage = validatePassword(password);
+  if (passwordValidationMessage) {
+    setPasswordError(passwordValidationMessage);
+    return;
+  }
 
-    try {
-      // // Check if user already exists in MongoDB
-      // const existingUser = await findUserByEmail(email);
-      // if (existingUser) {
-      //   console.log("User already exists in MongoDB");
-      //   setAlertmsg("User Already exists");
-      //   setPopupVisible(true);
-      //   setTimeout(() => {
-      //     setPopupVisible(false);
-      //     router.push("/login");
-      //   }, 5000);
-      //   return;
-      // }
+  try {
+    // Create user with email and password in Firebase
+    const userCredential = await createUserWithEmailAndPassword(email, password);
 
-      console.log("yoyo1")
+    if (userCredential) {
+      const userId = userCredential.user.uid;
 
-      // Create user with email and password in Firebase
-      const userCredential = await createUserWithEmailAndPassword(
-        email,
-        password
-      );
-      
-      console.log("yoyo")
-      console.log(userCredential)
-      console.log("yoyo")
+      // Create a new user in MongoDB
+      await addUser(userId, "john doe", email, []);
 
-      console.log(email, password);
-
-      if (userCredential) {
-        const userId = userCredential.user.uid;
-
-        // Create a new user in MongoDB
-        await addUser(userId, "john doe", email, []);
-
-        // Send email verification
-        const success = await sendEmailVerification();
-        if (success) {
-          console.log("Verification email sent");
-          setAlertmsg("Email verification sent! Redirecting to login...");
-          setPopupVisible(true);
-
-          setTimeout(() => {
-            setPopupVisible(false);
-            router.push("/login");
-          }, 5000);
-
-          setEmail("");
-          setPassword("");
-        }
-      }
-    } catch (error: any) {
-      console.log("error")
-      console.log(error);
-      console.log(error.code);
-
-      // Handle EMAIL_EXISTS error
-      if (
-        error?.response?.data?.error?.message === "EMAIL_EXISTS" ||
-        error.message.includes("EMAIL_EXISTS")
-      ) {
-        setAlertmsg("This email is already registered. Please log in.");
+      // Send email verification
+      const success = await sendEmailVerification();
+      if (success) {
+        console.log("Verification email sent");
+        setAlertmsg("Email verification sent! Redirecting to login...");
         setPopupVisible(true);
-        setTimeout(() => setPopupVisible(false), 5000);
-        return;
-      }
 
-      // General error handling
+        setTimeout(() => {
+          setPopupVisible(false);
+          router.push("/login");
+        }, 5000);
+
+        setEmail("");
+        setPassword("");
+      }
+    }
+  } catch (error: any) {
+    console.log("Error during signup:", error);
+
+    // Handle email already in use error
+    if (error.code === "auth/email-already-in-use") {
+      setAlertmsg("Email is already in use. Please try logging in or using a different email.");
+      setPopupVisible(true);
+      setTimeout(() => {
+        setPopupVisible(false);
+      }, 5000);
+    } else {
+      // Handle other errors
       setAlertmsg("An error occurred. Please try again.");
       setPopupVisible(true);
-      setTimeout(() => setPopupVisible(false), 5000);
+      setTimeout(() => {
+        setPopupVisible(false);
+      }, 5000);
     }
-  };
+  }
+};
+
 
   const handleSignIn = async () => {
     try {
