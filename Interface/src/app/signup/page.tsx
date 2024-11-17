@@ -49,18 +49,20 @@ export default function Signup() {
     }
 
     try {
-      // Check if user already exists in MongoDB
-      const existingUser = await findUserByEmail(email);
-      if (existingUser) {
-        console.log("User already exists in MongoDB");
-        setAlertmsg("User Already exists");
-        setPopupVisible(true);
-        setTimeout(() => {
-          setPopupVisible(false);
-          router.push("/login");
-        }, 5000);
-        return;
-      }
+      // // Check if user already exists in MongoDB
+      // const existingUser = await findUserByEmail(email);
+      // if (existingUser) {
+      //   console.log("User already exists in MongoDB");
+      //   setAlertmsg("User Already exists");
+      //   setPopupVisible(true);
+      //   setTimeout(() => {
+      //     setPopupVisible(false);
+      //     router.push("/login");
+      //   }, 5000);
+      //   return;
+      // }
+
+      console.log("yoyo1")
 
       // Create user with email and password in Firebase
       const userCredential = await createUserWithEmailAndPassword(
@@ -97,6 +99,7 @@ export default function Signup() {
         }
       }
     } catch (error: any) {
+      console.log("error")
       console.log(error);
       console.log(error.code);
 
